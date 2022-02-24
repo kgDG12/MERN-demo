@@ -14,5 +14,7 @@ route.get('/', contactsController.getContacts)
 route.get('/id/:id', contactsController.getContactByID)
 
 route.post('/add', contactsController.addContact)
+route.put('/upd', contactsController.updContact)
+route.delete('/del', contactsController.delContact)
 
 export default route

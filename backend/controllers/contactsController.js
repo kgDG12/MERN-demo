@@ -10,8 +10,15 @@ export default class contactsController {
 
         if (req.query.name) {
             filters.name = req.query.name
-        } else if (req.query.email) {
+        }
+        if (req.query.email) {
             filters.email = req.query.email
+        }
+        if (req.query.phone) {
+            filters.phone = req.query.phone
+        }
+        if (req.query.search) {
+            filters.search = req.query.search
         }
 
         const {
@@ -41,6 +48,7 @@ export default class contactsController {
 
             if (!contacts) {
                 res.status(404).json({
+                    status: false,
                     error: 'Not found'
                 })
                 return
@@ -50,6 +58,7 @@ export default class contactsController {
         } catch (e) {
             console.error(`Error in get by Id , ${e}`)
             res.status(500).json({
+                status: false,
                 error: e
             })
         }
@@ -59,7 +68,7 @@ export default class contactsController {
         try {
             const name = req.body.name
             const email = req.body.email
-            const phone = req.body.phone
+            const phone = parseInt(req.body.phone)
 
             let filters = {}
             if (email) {
@@ -75,17 +84,82 @@ export default class contactsController {
                     name, email, phone
                 )
                 res.json({
-                    status: 'Success'
+                    status: true,
+                    message: 'Contact Added'
                 })
                 console.log('POST Contact Added');
             } else {
                 res.status(400).json({
+                    status: false,
                     error: 'Email Already Taken'
                 })
             }
         } catch (e) {
             console.error(`Error in add Contact, ${e}`)
             res.status(500).json({
+                status: false,
+                error: e
+            })
+        }
+    }
+
+    static async updContact(req, res) {
+        try {
+            const conID = req.body.conID
+            const name = req.body.name
+            const email = req.body.email
+            const phone = parseInt(req.body.phone)
+
+            let filters = {}
+            let except = {}
+            if (email && conID) {
+                filters.email = req.body.email
+                except.conID = req.body.conID
+            }
+            const {
+                totalNumContacts
+            } = await ContactsModel.getContacts({
+                filters,
+                except
+            })
+            if (totalNumContacts == 0) {
+                const updResponse = await ContactsModel.updContact(
+                    conID, name, email, phone
+                )
+                res.json({
+                    status: true,
+                    message: 'Contact Updated'
+                })
+                console.log('PUT Contact Updated');
+            } else {
+                res.status(400).json({
+                    status: false,
+                    error: 'Email Already Taken'
+                })
+            }
+        } catch (e) {
+            console.error(`Error in upd Contact, ${e}`)
+            res.status(500).json({
+                status: false,
+                error: e
+            })
+        }
+    }
+
+    static async delContact(req, res) {
+        try {
+            const conID = req.body.conID
+
+            const delResponse = await ContactsModel.delContact(conID)
+            res.json({
+                status: true,
+                message: 'Contact Deleted'
+            })
+            console.log('DELETE Contact Deleted');
+        } catch (e) {
+            console.error(`Error in del Contact, ${e}`)
+            res.status(500).json({
+                status: false,
                 error: e
             })
         }

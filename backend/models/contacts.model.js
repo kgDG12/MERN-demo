@@ -19,24 +19,48 @@ export default class ContactsModel {
 
     static async getContacts({
         filters = null,
+        except = null,
         page = 0,
         contactsPerPage = 20
     } = {}) {
-        let query
+        let query = {}
 
         if (filters) {
             if ('name' in filters) {
-                query = {
-                    $text: {
-                        $search: filters['name']
+                query.$text = {
+                    $search: filters['name']
+                }
+            }
+            if ('email' in filters) {
+                query.email = {
+                    $eq: filters['email']
+                }
+
+            }
+            if ('phone' in filters) {
+                query.phone = {
+                    $eq: filters['phone']
+                }
+
+            }
+            if ('search' in filters) {
+                query.$search = {
+                    index: 'default',
+                    text: {
+                        query: filters['search'],
+                        path: {
+                            'wildcard': '*'
+                        }
                     }
                 }
-            } else if ('email' in filters) {
-                query = {
-                    email: {
-                        $eq: filters['email']
-                    }
-                }
+
+            }
+
+        }
+
+        if (except) {
+            query._id = {
+                $nin: [ObjectID(except.conID)]
             }
         }
 
@@ -99,6 +123,40 @@ export default class ContactsModel {
             return await contacts.insertOne(contactDoc)
         } catch (e) {
             console.error(`Unable to Post Contact, ${e}`)
+            return {
+                error: e
+            }
+        }
+    }
+
+    static async updContact(conID, name, email, phone) {
+        try {
+            const updResponse = await contacts.updateOne({
+                _id: ObjectID(conID)
+            }, {
+                $set: {
+                    name: name,
+                    email: email,
+                    phone: phone
+                }
+            })
+            return updResponse
+        } catch (e) {
+            console.error(`Unable to update , ${e}`)
+            return {
+                error: e
+            }
+        }
+    }
+
+    static async delContact(conID) {
+        try {
+            const delResponse = await contacts.deleteOne({
+                _id: ObjectID(conID)
+            })
+            return delResponse
+        } catch (e) {
+            console.error(`Unable to Delete , ${e}`)
             return {
                 error: e
             }
