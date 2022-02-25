@@ -1,4 +1,5 @@
 import ContactsModel from '../models/contacts.model.js'
+import Validate from './../validation/validate.js'
 
 export default class contactsController {
 
@@ -66,33 +67,38 @@ export default class contactsController {
 
     static async addContact(req, res) {
         try {
-            const name = req.body.name
-            const email = req.body.email
-            const phone = parseInt(req.body.phone)
+            var errors = Validate.vali(req.body)
+            if (errors.status == true) {
+                const name = req.body.name
+                const email = req.body.email
+                const phone = parseInt(req.body.phone)
 
-            let filters = {}
-            if (email) {
-                filters.email = req.body.email
-            }
-            const {
-                totalNumContacts
-            } = await ContactsModel.getContacts({
-                filters
-            })
-            if (totalNumContacts == 0) {
-                const addResponse = await ContactsModel.addContact(
-                    name, email, phone
-                )
-                res.json({
-                    status: true,
-                    message: 'Contact Added'
+                let filters = {}
+                if (email) {
+                    filters.email = req.body.email
+                }
+                const {
+                    totalNumContacts
+                } = await ContactsModel.getContacts({
+                    filters
                 })
-                console.log('POST Contact Added');
+                if (totalNumContacts == 0) {
+                    const addResponse = await ContactsModel.addContact(
+                        name, email, phone
+                    )
+                    res.json({
+                        status: true,
+                        message: 'Contact Added'
+                    })
+                    console.log('POST Contact Added');
+                } else {
+                    res.json({
+                        status: false,
+                        message: 'Email Already Taken'
+                    })
+                }
             } else {
-                res.status(400).json({
-                    status: false,
-                    error: 'Email Already Taken'
-                })
+                res.json(errors)
             }
         } catch (e) {
             console.error(`Error in add Contact, ${e}`)
@@ -105,37 +111,42 @@ export default class contactsController {
 
     static async updContact(req, res) {
         try {
-            const conID = req.body.conID
-            const name = req.body.name
-            const email = req.body.email
-            const phone = parseInt(req.body.phone)
+            var errors = Validate.vali(req.body)
+            if (errors.status == true) {
+                const conID = req.body.conID
+                const name = req.body.name
+                const email = req.body.email
+                const phone = parseInt(req.body.phone)
 
-            let filters = {}
-            let except = {}
-            if (email && conID) {
-                filters.email = req.body.email
-                except.conID = req.body.conID
-            }
-            const {
-                totalNumContacts
-            } = await ContactsModel.getContacts({
-                filters,
-                except
-            })
-            if (totalNumContacts == 0) {
-                const updResponse = await ContactsModel.updContact(
-                    conID, name, email, phone
-                )
-                res.json({
-                    status: true,
-                    message: 'Contact Updated'
+                let filters = {}
+                let except = {}
+                if (email && conID) {
+                    filters.email = req.body.email
+                    except.conID = req.body.conID
+                }
+                const {
+                    totalNumContacts
+                } = await ContactsModel.getContacts({
+                    filters,
+                    except
                 })
-                console.log('PUT Contact Updated');
+                if (totalNumContacts == 0) {
+                    const updResponse = await ContactsModel.updContact(
+                        conID, name, email, phone
+                    )
+                    res.json({
+                        status: true,
+                        message: 'Contact Updated'
+                    })
+                    console.log('PUT Contact Updated');
+                } else {
+                    res.json({
+                        status: false,
+                        message: 'Email Already Taken'
+                    })
+                }
             } else {
-                res.status(400).json({
-                    status: false,
-                    error: 'Email Already Taken'
-                })
+                res.json(errors)
             }
         } catch (e) {
             console.error(`Error in upd Contact, ${e}`)
@@ -149,7 +160,6 @@ export default class contactsController {
     static async delContact(req, res) {
         try {
             const conID = req.body.conID
-
             const delResponse = await ContactsModel.delContact(conID)
             res.json({
                 status: true,

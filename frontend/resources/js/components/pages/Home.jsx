@@ -26,18 +26,16 @@ export default function Home({ url, ...props }) {
     const fetchContacts = async () => {
         if (searchStr != '') {
             axios
-                .get(`${url}api/search/${searchStr}`)
+                .get(`${url}/api/contacts?name=${searchStr}`)
                 .then(res => {
-                    // console.log(res)
-                    setContacts(res.data)
+                    setContacts(res.data.contacts)
                 })
                 .catch(err => console.log(err))
         } else {
             await axios
-                .get(`${url}api/contacts`)
+                .get(`${url}/api/contacts`)
                 .then(res => {
-                    console.log(res)
-                    // setContacts(res.data.contacts)
+                    setContacts(res.data.contacts)
                 })
                 .catch(err => console.log(err))
         }
@@ -45,13 +43,14 @@ export default function Home({ url, ...props }) {
 
     const formSub = () => {
         var data = {
+            conID: idVal,
             name: nameVal,
             email: emailVal,
             phone: phoneVal
         }
         if (idVal != '') {
             axios
-                .put(`${url}api/upd/${idVal}`, data)
+                .put(`${url}/api/contacts/upd`, data)
                 .then(res => {
                     if (res.data.status) {
                         fetchContacts()
@@ -71,7 +70,7 @@ export default function Home({ url, ...props }) {
 
         } else {
             axios
-                .post(`${url}api/add`, data)
+                .post(`${url}/api/contacts/add`, data)
                 .then(res => {
                     if (res.data.status) {
                         fetchContacts()
@@ -92,8 +91,9 @@ export default function Home({ url, ...props }) {
 
     const delClick = (id, name) => {
         if (confirm('Are You Sure to Delete ' + name + '\'s Contact? ')) {
+            var data = { conID: id }
             axios
-                .delete(`${url}api/del/${id}`)
+                .delete(`${url}/api/contacts/del`, { data: data })
                 .then(res => {
                     let status = res.data.status
                     if (status) {

@@ -7,7 +7,7 @@ const Server = Express();
 const URL = process.env.APP_URL
 const PORT = process.env.PORT || 8080;
 
-Server.use(cors());
+Server.use(cors())
 
 Server.listen(PORT, () => {
     console.log(`Server is running at ${URL}:${PORT}`)

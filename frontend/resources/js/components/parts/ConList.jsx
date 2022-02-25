@@ -4,7 +4,7 @@ export default function ConList({ contacts, SetFormUpd, SetFormVals, delClick, .
     const EditHandle = (item) => {
         SetFormUpd.SetFormUpd(true)
         SetFormUpd.ShowForm(true)
-        SetFormVals.SetIdVal(item.id)
+        SetFormVals.SetIdVal(item._id)
         SetFormVals.SetNameVal(item.name)
         SetFormVals.SetEmailVal(item.email)
         SetFormVals.SetPhoneVal(item.phone)
@@ -16,7 +16,7 @@ export default function ConList({ contacts, SetFormUpd, SetFormVals, delClick, .
                 <div className="row">
                     {contacts.length ?
                         contacts.map((item, i) =>
-                            <div key={item.id} className="col-4 mb-4">
+                            <div key={i} className="col-4 mb-4">
                                 <div className="card text-white border-secondary">
                                     <div className="card-header bg-dark">
                                         <h5 className="card-title">{item.name}</h5>
@@ -33,7 +33,7 @@ export default function ConList({ contacts, SetFormUpd, SetFormVals, delClick, .
                                             </div>
                                             <div className="col-4">
                                                 <button onClick={() => EditHandle(item)} className='btn btn-sm btn-success me-2'>Edit</button>
-                                                <button onClick={() => delClick(item.id, item.name)} className='btn btn-sm btn-danger'>Delete</button>
+                                                <button onClick={() => delClick(item._id, item.name)} className='btn btn-sm btn-danger'>Delete</button>
                                             </div>
                                         </div>
                                     </div>
